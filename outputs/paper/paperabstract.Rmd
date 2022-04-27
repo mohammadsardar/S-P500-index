@@ -1,0 +1,538 @@
+---
+title: "Standard and Poors Stock Market value over the years"
+subtitle: ""
+author: 
+  - "Mohammad Sardar Sheikh"
+thanks: "Code and data are available at: LINK."
+date: "`r format(Sys.time(), '%d %B %Y')`"
+abstract: "The purpose of this paper is to check the long term trends in the S$P500 stock index value. I want to see the whether the numerous recessions and economic booms have had a significant difference on the value of the dividends and related factors. Methods that will be used to fit models will be justified and all assumptions will be checked for them. I have no furhter information to put in the abstract."
+output:
+  bookdown::pdf_document2
+toc: FALSE
+bibliography: references.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(tidyverse)
+library(kableExtra)
+library(patchwork)
+library(readr)
+library(lubridate)
+library(janitor)
+library(hrbrthemes)
+library(car)
+library(lme4)
+
+library(extrafont)
+loadfonts(device = "win")
+#add other libraries here
+
+```
+
+# Introduction
+
+This is still a basic introduction of the paper that I am planning to do. I want to predict long term trends of the S&P 500 and the short term trends. there have been various recessions and booms since it was founded and I want to see what the average rates of return were during these times and whether the stock owners got a different share of dividends during these times. The data that I have is monthly recordings of varialbes such as the value of the index to the earnings and dividends for the index and long term interest rates. We also have Consumer Price index data that has been used to normalise the values of the variables and get real values in return. I plan to make a number of visualisations that can be used to see the long term trends in the value, and also some visualizations that can be used to focus on smaller time periods, such as recession and or booms. I also plan to include an interactive graph (shiny maybe). After doing some literature review, I plan on fitting a model that can help predict the value of the index and i will choose relevant predictors to include in the model. I will make sure that the predictors have linear or no relationships with each other and that they do not increase the VIF of the model.
+
+I am also interested in how a recession changes the value of the stock and what exactly happens to all the dividends and earnings and the CPI.; so what i will do is make line graphs where i will zoom in.
+
+This paper and researh was done using `R` [@citeR]. I used many other packages to help me in the creation of this paper. They include: TidyVerse [@citetidy], kableExtra [@citekable] for the informative tables, Patchwork [@citepatch] for the graph layouts, readr [@citereadr] to help load and write data, lubridate [@citelubridate] to help manage important dates, car [@citecar] to help with model assumptions and verification and lme4 [@citelme4] to help build mixed models.
+
+# key words (i dont know if i need this section)
+
+S$P500. Stock Value. Model. Dividends. Price. Year. CPI. Economic timeline.
+
+#key steps
+1. analyze the actual data:
+what is it trying to tell me
+is there anything that i need to know to do my research
+
+2. do some Heracles on the subject
+when were the recessions that i am gonna talk about
+when were the booms
+how am i gonna manipulate the data to show what i want in to show?
+damn this sounds pretty amazing doesn't it?
+lets get started now.
+
+3. Have to gather data on the S&P 500. what is it, what does it actually represent, what stocks are part of it
+
+# Data
+
+have to explain where i got the data from and how I am manipulating the dataset to make everything clean and organized.
+
+For this paper and analysis, the data that I am working with is collected by the Economist Robert Shiller who is an Economist at Yale, and the dataset is open access at his website [@shiller]. We download the data directly from his website onto a local machine and then we can use that data. We can also access the dat using a json file, the details of which are provided in the cleaning script. The next step is cleaning and organizing the data so that it can be used effectively in my analysis. All the variables have to be renamed and significant figures have to be checked so that they match. The dataset contains many variables that we do not have an interest in such as bond returns and values of the annualized stock returns that do not add too much information to the report but make it more complex and harder to replicate. The variables that I choose to keep are value of the index, value of the monthly dividends, value of the monthly earnings (all the variables mentioned above have both real and nominal values included in the final dataset). We also utilize information about the long term real interest rate of the economy (this is very important for investment decisions) and the consumer price index (this can be used to calculate inflation in the economy from year to year, or compared to a base year) for which the base year is 1983. We also include the CAPE ratio as one of the variables. This is important as (ADD INFORMATION ABOUT THE CAPE RATIO AND CITE IT IF POSSIBLE).
+
+Another variable that I had to account for was the date. This needed modification as it was not in proper format. effectively utilizing lubridate allowed me to overcome this and create a clean variable. A variable that I created for the sake of the analysis was a year variable. This was made using the original date variable. The data that we had available was from 1871 onwards. However, I chose to start the analysis from the year 1913 as that is the first year that we have accurate data for regarding the consumer price index (CPI). Some of the variables that I considered important are shown in the graphs. 
+
+```{r, include = FALSE}
+
+
+stock_market_data <- read_csv("cleaned_data.csv", 
+    col_types = cols(Date = col_date(format = "%Y-%m-%d")))
+#stock_market_data <- read_csv("cleaned_data.csv")
+stock_market_data <- stock_market_data %>% select(-1)
+# now we want to make a new column for recessions. so 1 if there is a recession and 0 if there is no recession:
+# I dont want data from before 1913 as that is an important date plus the index started in 1923 so do i filter from there?
+
+stock_market_data2 <- stock_market_data %>% filter(Date > "1913-01-01")
+# the above is the subset that we want 
+
+#now i want to categorize recessions. do i use base years?
+# maybe i categorize the data according to years by grouping it and then finding the means
+# that will make the calculations much easier.
+
+
+# I chose not to categorise recessions as making a model for that will not work since all of our dependent varaibles are increasig in the long run. 
+
+```
+
+For displaying the data that we have, instead of choosing monthly values, I summarized them into yearly values and then plotted them so that they were not as cluttered and it would be easier to consider them as one off graphs.
+
+
+
+```{r reformatting the dataset, echo=FALSE, include=FALSE}
+
+stock_yearly <- stock_market_data2 %>% mutate(year = year(Date))
+# now that we have the specific years, we want to group by them and then sumamrise\
+
+stock_yearly <- stock_yearly %>%  clean_names()
+yearly_group <- stock_yearly %>% group_by(year) %>% 
+  summarise(avg_price = round(mean(real_price), 2),
+            avg_dividend = round(mean(real_dividend), 2),
+            cpi =round(mean(consumer_price_index), 2),
+            avg_earnings = round(mean(real_earnings), 2),
+            cape = round(mean(pe10), 2),
+            stock_price = round(mean(sp500), 2),
+            longterminterest= round(mean(long_interest_rate), 2))
+#now that we have yearly aggregates, we can make line graphs to show what is going on in the data.
+
+```
+
+
+
+```{r linegraphsindexvalue, warning=FALSE, message=FALSE, echo = FALSE, fig.width=6, fig.height= 3, fig.cap= "Average yearly S&P500 index value"}
+# gonna try to make one for the value of the stock first. all of my graphs are going to be line graphs lmaoooooo
+
+p1 <- yearly_group %>% ggplot(aes(x = year, y = avg_price)) +
+  geom_line(color="#69b3a2", linetype = 2) + 
+  theme_minimal() + 
+  labs(title = "real") +
+  xlab("Year") +
+  ylab("Value of Index")
+
+p2 <- yearly_group %>% ggplot(aes(x = year, y = stock_price)) +
+  geom_line(color="#69b3a2", linetype = 2) + 
+  theme_minimal() + 
+  labs(title = "nominal") +
+  xlab("Year") +
+  ylab("Value of Index")
+
+p1/p2
+```
+
+We can see from Figure \@ref(fig:linegraphsindexvalue) that the value of the index has increased greatly since it was established in 1923. In 1923, it was launched on a very small scale. it started out with only 90 different stocks, but by 1957, it had increased that to 500 of the largest ones.We can see from the figure (which shows both real and nominal prices of the index) that a great proportion of that increase has taken place 1985 onwards, with very steep increases in market valuation for the stocks.
+
+
+```{r dividend, echo=FALSE, warning=FALSE, fig.width=6, fig.height= 3, fig.cap="Average yearly S&P500 dividends (real)"}
+
+yearly_group %>% ggplot(aes(x = year, y = avg_dividend)) +
+  geom_line(color= 5 , linetype = 2) + 
+  theme_minimal() + 
+  #labs(title = "Average yearly S&P500 dividends (real)") +
+  xlab("Year") +
+  ylab("Value of Dividends")
+
+#maybe add max and min annotations for this? or mean
+```
+
+Figure \@ref(fig:dividend) shows us the real value of the dividends for the index (A dividend is the distribution of some of a company's earnings to a class of its shareholders). We can see that while the value of the dividends rises just like the valuation of the index, it does so at a much slower rate and it is a lot less smoother, with many peaks and troughs. 
+
+
+```{r earnings, warning=FALSE, echo=FALSE, fig.width=6, fig.height= 3, fig.cap="Average yearly S&P500 earnings (real)"}
+
+yearly_group %>% ggplot(aes(x = year, y = avg_earnings)) +
+  geom_line(color="#8B0000", linetype = 2) + 
+  theme_minimal() + 
+  #labs(title = "Average yearly S&P500 earnings (real)") +
+  xlab("Year") +
+  ylab("Value of Earnings")
+
+```
+
+Using Figure \@ref(fig:earnings) we can see that the earnings increase steadily over a great period of time. We can also see near the end how the earnings take a huge plunge. This can most likely be attributed to the great recession of 2007-2008 and we will look deeper into this. 
+
+```{r cpi, echo=FALSE, fig.width=6, fig.height= 3, fig.cap="Average yearly Consumer Price Index"}
+yearly_group %>% mutate(cpiaveraged = cpi-100) %>% 
+  ggplot(aes(x = year, y = cpiaveraged)) +
+  geom_line(color="#8B0000", linetype = 2) + 
+  theme_minimal() +
+  #theme_ipsum() + 
+  #labs(title = "Average yearly Consumer Price Index") +
+  xlab("Year") +
+  ylab("CPI %") + 
+  #geom_vline(xintercept = 1983, color ="blue", linetype = 2) +
+  annotate(geom="text", x= 1983 , y=20 , 
+              label="Cpi is compared to this base year (1983)", size = 3.5) +
+  annotate(geom="point", x= 1983, y=0 , size=3, shape=21, fill="transparent")
+  
+
+# here we actually want to take 1983 as the base year so i want to set it as 0 so that we can have a acomparison across the years more easily.
+```
+
+By the aid of \@ref(fig:cpi), we can see that the average price of a bundle of goods in the economy has increased greatly since the measure was introduced in 1913. The CPI is used to determine the level of inflation between years. The US considers the base year for the CPI to be 1983. This means that all valuation of bundles and percentages are relative to 1983 dollars and compared to the price of the same bundle of goods in 1983. For example, we can see from the figure that the value of the CPI in 2005 was around 100%. We can interpret this as: The same bundle of goods in 2004 costs us twice as much compared to if it were purchased in 1983. So the inflation is effectively 100% between the two periods.
+
+
+# Model
+
+I want to create 2 models as I want to be able to predict 2 things. the first one is the long term interest rate. the second model that i create is the real value of the index
+Now we will start thinking about what sort of model to use for our predictions. we can use any model that we prefer abut it has to be well explained. i think that for my purposes, a linear model will be the best with just a few predictors (real values instead of nominal ones)
+
+We want to be able to predict the value of the S&P 500 index based on the predictors that we have. Or can we do something about inflation? as that has an effect on the economy as a whole.... WE WILL USE long term real interest rate as the response variable. what i have to do is justify why i think this is an important thing to create a model for. Do I have to do any calculations for this?
+
+the model that i chose has real interest rate as the response variable. now I have to justify why I think that a linear model is suitable and why interest rate is a suitable choice for the model
+
+There are some things that I would like to predict based on the data that we have. Firstly, I would like to predict what the value of the index will be in the future. The S&P500 is one of the most popular indexes in the world, and its valuation is closely followed by millions. We can predict the state of the economy based on the value of the stock at a current period in time. based on the data exploration that has been done, and fulfilling model assumptions, the most appropriate predictors to use for the model would be the value of the dividends, value of earnings, the long term interest rate and the consumer price index (measure of inflation). We also take the natural log for the response (in this case it is the real value of the stock), to fulfill model assumptions. We will fit a linear regression model which has the following formula:
+
+$$
+log(\gamma_i) =  \beta_{0} + \beta_{1}\alpha_1 + 
+\beta_{2}\alpha_2 + \beta_{3}\alpha_3 + \beta_{4}\alpha_4
+$$
+
+The elements of the model can be interpreted as:
+
+- $\beta_0$ is the intercept term.
+- $\gamma_i$ is the real price of the stock (we take the log). 
+- $\alpha_1$ is the long term real interest rate.
+- $\alpha_2$ is the value of the dividends that investors get from the index.
+- $\alpha_3$ is the value of the earnings (profits) from the index for a given period.
+- $\alpha_4$ is the the consumer price index (base year is 1983).
+
+
+Another model that is important to fit is to predict the value of the long term interest rate. The interest rate has been used by investors to figure out if a specific period is worth investing in. High interest rates dry up the investment in the economy as they increase the risk associated with investing, as there is a greater interest to be paid on the principal amount. During periods of high interest rates, people choose to save instead and this slows economic growth. The model that seems appropriate to fit includes the predictors such as real value of dividends, real value of earnings, consumer price index and the pe10 ratio (CAPE ratio). For the sake of fulfilling model assumptions, we take the logarithm of the response variable (interest rate). We also make sure that there isn't too much  collinearity between the predictors and that the VIF (variance inflation factor) of the model is not too high. the final model can be represented as:
+
+
+$$
+log(\gamma_i) =  \beta_{0} + \beta_{1}\alpha_1 + 
+\beta_{2}\alpha_2 + \beta_{3}\alpha_3 + \beta_{4}\alpha_4
+$$
+
+The elements of the model can be interpreted as:
+
+- $\beta_0$ is the intercept term.
+- $\gamma_i$ is the real interest rate that we get from the output of the model (we take the log for this to make it normal). 
+- $\alpha_1$ is the value of the dividends that investors get from the index.
+- $\alpha_2$ is the value of the earnings (profits) from the index for a given period.
+- $\alpha_3$ is the the consumer price index (base year is 1983).
+- $\alpha_4$ is the CAPE ratio.
+
+
+A linear model seems appropriate to predict both of these values.
+
+
+
+```{r modelcreation, include=FALSE}
+# cpimodel <- lm(consumer_price_index ~ long_interest_rate + real_price + real_dividend + real_earnings + year, data = stock_yearly)
+# summary(cpimodel)
+# 
+# cpimodel2 <- lm(consumer_price_index ~ long_interest_rate + real_price + real_dividend + real_earnings, data = stock_yearly)
+# summary(cpimodel2)
+
+interestmodel <- lm(long_interest_rate ~ real_price + real_dividend + real_earnings + consumer_price_index, data = stock_yearly)
+summary(interestmodel)
+vif(interestmodel)
+interestmodel2 <- lm(long_interest_rate ~ real_dividend + real_earnings + consumer_price_index + pe10, data = stock_yearly)
+interestmodel2log <- lm(log(long_interest_rate) ~ real_dividend + real_earnings + consumer_price_index + pe10, data = stock_yearly)
+interestmodel3 <- lm(long_interest_rate ~ real_dividend + real_earnings + consumer_price_index, data = stock_yearly)
+# i think that we may be able to use the model above for our purposes. now all we need to do is check for the VIF and similar things.
+
+vif(interestmodel2)
+#so we can see that there is a significant thingy here
+
+
+summary(interestmodel2)
+summary(interestmodel2log)
+
+#how do we interpret a log model?
+
+summary(interestmodel3)
+
+# we will use interestmodel2 as our final model for the regression of interest rate on paramters of S&P500 index
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r, include=FALSE}
+
+
+pricemodel <- lm(real_price ~ long_interest_rate + real_dividend + real_earnings + consumer_price_index + year, data = stock_yearly)
+summary(pricemodel)
+pricemodelnoyear <- lm(real_price ~ long_interest_rate + real_dividend + real_earnings + consumer_price_index, data = stock_yearly)
+summary(pricemodelnoyear)
+
+pricemodelnoyearlog <- lm(log(real_price) ~ long_interest_rate + real_dividend + real_earnings + consumer_price_index, data = stock_yearly)
+
+#we will take the log for this as well
+
+summary(pricemodelnoyearlog)
+
+# pricemixed <- lmer(real_price ~ long_interest_rate + real_dividend + real_earnings + consumer_price_index + (1|year), data = stock_yearly)
+# summary(pricemixed)
+#vif(pricemodel)
+#there is very high VIF for this model so we dont want to use this. 
+
+#vif(pricemodel)
+vif(pricemodelnoyear)
+# this has some variables at the boundary so it is fine to use it. it also has a very high R^2 value
+
+```
+
+
+
+
+
+
+
+# Results
+
+I want to isolate the periods in the history of the United States when there were major recessions and then analyze how the price of the stock varied in those times. As explained, a recession is a period when the overall GDP growth rate of the economy falls as compared to the long run average growth (can go negative). In all of the recessions that I analyze, the GDP decreased by a huge margin and I want to analyze if this had any significant effects on the price of the S&P500 index value. I also want to predict both the value of the long term interest rate based on the components of the S$P500, and i want to be able to predict the value of the index in the future. To do this, I have created two models which will be interpreted.
+
+## Great Depression
+
+```{r great depression, echo = FALSE, fig.width=6, fig.height= 3}
+
+# the timeline for the great recession is 1929-1933 & 1937-1938  gdp contraction:26.7% and 18.32%
+# going to take a 5 year buffer above and below.
+
+stock_yearly$real_price <- as.numeric(stock_yearly$real_price)
+
+  #stock_yearly %>% filter(year > 1923 & year < 1944) %>% summary()
+
+
+stock_yearly %>% filter(year > 1926 & year < 1941) %>%
+  ggplot(aes(x = date, y = real_price)) +
+  geom_line(color="#69b3a2", linetype = 2) + 
+  theme_minimal() + 
+  labs(title = "Monthly value of the S&P500 during the Great Depression") +
+  xlab("Year") +
+  ylab("Value of Index") +
+  # geom_hline(yintercept = 210.07, linetype = 16) +
+  geom_vline(xintercept = as.numeric(ymd("1929-01-01")), 
+              color = "red", 
+              lwd = 0.5,
+              linetype = 12) +
+  geom_vline(xintercept = as.numeric(ymd("1938-01-01")), 
+              color = "blue", 
+              lwd = 0.5,
+              linetype = 12) +
+  geom_vline(xintercept = as.numeric(ymd("1933-01-01")), 
+              color = "red", 
+              lwd = 0.5,
+              linetype = 12) +
+  geom_vline(xintercept = as.numeric(ymd("1937-01-01")), 
+              color = "blue", 
+              lwd = 0.5,
+              linetype = 12)
+
+#now explain what it is that you have done 
+
+
+```
+
+So we can see from the plot above that when the great depression hit (the largest recession in american history, where GDP fell by 27%), the value of the S&P500 fell by a great deal (add proper values here?). this can be seen from the vertical red lines in the figure. that was the first wave of the recession. the second wave of the recession hit in 1937 and only lasted one year, but we can see that it already started to take effect on the value of the index (this is represented by the blue lines). HAVE TO ADD SOME NUMBERS ON HERE AS WELL.
+
+
+## Recession at the end of world war 2
+
+But with the surrender of both Germany and Japan in 1945, military contracts were slashed and soldiers started coming home, competing with civilians for jobs. As government spending dried up, the economy dipped into a serious recession with GDP contracting by a whopping 11 percent. this was actrually a fiscal cliff
+
+```{r, echo = FALSE, fig.width=6, fig.height= 3}
+
+stock_yearly %>% filter(year > 1943 & year < 1953) %>%
+  ggplot(aes(x = date, y = real_price)) +
+  geom_line(color="#69b3a2", linetype = 2) + 
+  theme_minimal() + 
+  labs(title = "Value of the S&P500 during the Recession of 1945") +
+  xlab("Year") +
+  ylab("Value of Index") +
+  # geom_hline(yintercept = 210.07, linetype = 16) +
+  geom_vline(xintercept = as.numeric(ymd("1945-01-01")), 
+              color = "blue", 
+              lwd = 0.5,
+              linetype = 12) +
+  geom_vline(xintercept = as.numeric(ymd("1946-01-01")), 
+              color = "blue", 
+              lwd = 0.5,
+              linetype = 12) 
+
+```
+
+From the graph above we can see that the value of the index actually increased during the recession of 1945. This seems surprising as this recession in particular hit the United States very hard and there was a decrease of 12.7% in GDP. yet we can see that the value of the index remained strong. We have a counter argument since the  effects of a regression are visible for a long period even after the recession has subsided. we can see from the figure above that this seems to be the case. since the regression was officially over within 8 months, the index did not have time to adjust to the fluctuations in the market and we can see this as a lagged effect since we observe a huge and long drop in the value of the index which took a few years just to recover and reach its original level. ADD SOME MORE AFTER SOME RESEARCH
+
+
+## recession on 1957-1958 Eisenhower recession.
+
+```{r, echo=FALSE, fig.width=6, fig.height= 3}
+stock_yearly %>% filter(year > 1953 & year < 1962) %>%
+  ggplot(aes(x = date, y = real_price)) +
+  geom_line(color="#69b3a2", linetype = 2) + 
+  theme_minimal() + 
+  labs(title = "Monthly value of the S&P500 during the Recession of ") +
+  xlab("Year") +
+  ylab("Value of Index") +
+  # geom_hline(yintercept = 210.07, linetype = 16) +
+  geom_vline(xintercept = as.numeric(ymd("1957-01-01")), 
+              color = "red", 
+              lwd = 0.5,
+              linetype = 12) +
+  geom_vline(xintercept = as.numeric(ymd("1959-01-01")), 
+              color = "red", 
+              lwd = 0.5,
+              linetype = 12)
+```
+
+We can see during this regression as well that the value of the index also fell somewhat. maybe add some numbers here as well? just include this as a figure to take up some space. what else can be added here. we can add some information about the specific regression and what caused it and how it affected the index (research wise).
+
+This recession was significant in the post world war 2 period and unemployment rose greatly while corporate profits fell by as much as 25%. A weak fiscal policy contributed to this and there was significant stagflation as well as just a reduction in output. Stagflation occurs when the economy deteriorates and there is high inflation at the same time. this leads to a very bad situation for the country and it is what was seen in this particular recession.
+
+```{r recessionearnings, echo=FALSE, fig.width=6, fig.height= 3}
+stock_yearly %>% filter(year > 1953 & year < 1962) %>%
+  ggplot(aes(x = date, y = real_earnings)) +
+  geom_line(color="#69b3a2", linetype = 2) + 
+  theme_minimal() + 
+  labs(title = "Monthly value of the S&P500 during the Recession of Eisenhower") +
+  xlab("Year") +
+  ylab("Value of Index") +
+  # geom_hline(yintercept = 210.07, linetype = 16) +
+  geom_vline(xintercept = as.numeric(ymd("1957-01-01")), 
+              color = "red", 
+              lwd = 0.5,
+              linetype = 12) +
+  geom_vline(xintercept = as.numeric(ymd("1959-01-01")), 
+              color = "red", 
+              lwd = 0.5,
+              linetype = 12)
+```
+
+## the great recession:
+
+```{r, echo=FALSE, fig.width=6, fig.height= 3}
+stock_yearly %>% filter(year > 2004 & year < 2013) %>%
+  ggplot(aes(x = date, y = real_price)) +
+  geom_line(color="#69b3a2", linetype = 2) + 
+  theme_minimal() + 
+  labs(title = "Monthly value of the S&P500 during the Great Recession") +
+  xlab("Year") +
+  ylab("Value of Index") +
+  # geom_hline(yintercept = 210.07, linetype = 16) +
+  geom_vline(xintercept = as.numeric(ymd("2007-11-01")), 
+              color = "red", 
+              lwd = 0.5,
+              linetype = 12) +
+  geom_vline(xintercept = as.numeric(ymd("2009-06-01")), 
+              color = "red", 
+              lwd = 0.5,
+              linetype = 12) 
+```
+
+AHH the great recession everyone that is reading this paper has experienced this period in our history. Not only was this specific regression in the United States, its effects spread worldwide, effecting so many other countries and continents. We can see just how devastating this regression was for the value of the stocks that were traded in the index as we can see a huge dip in the value of the standard and poors index in just the span of one year. going from a local maximum of 1800 to a local minimum of 900 dollars in real terms.
+
+THEse are all the recessions that i have to account for.
+
+model section of the results section
+
+interest rate model:
+
+```{r, echo=FALSE}
+
+regressionvalues <- broom::tidy(interestmodel2)
+
+regressionvalues <- regressionvalues %>% rename( 'standard error' = 'std.error',
+                                          'p-value' = 'p.value')
+knitr::kable(regressionvalues,
+             caption = "Coefficients from Interest Rate Model",
+             digits = 3) %>% 
+  kableExtra::kable_styling(latex_options = "striped")
+
+```
+
+talk about the results and what they mean here
+
+
+price of stock model:
+
+```{r regressionresultspriceofstock, echo=FALSE}
+
+pricecoefs <- broom::tidy(pricemodelnoyear)
+
+pricecoefs <- pricecoefs %>% rename( 'standard error' = 'std.error',
+                                          'p-value' = 'p.value')
+knitr::kable(pricecoefs,
+             caption = "Coefficients from Price Model",
+             digits = 3) %>% 
+  kableExtra::kable_styling(latex_options = "striped")
+
+```
+
+
+
+# Discussion
+
+## interpret the results of how the value of the stock fell during the major recessions
+
+If my paper were 10 pages, then should be be at least 2.5 pages. The discussion is a chance to show off what you know and what you learnt from all this. 
+
+## The relationship between Long term interest rates and the economy
+
+## The relationship between price of the stock and how it appears to be important (can include how the other stocks and the strength of the economy can be indicated by the performance of the S$P500 index and so this can be expanded into a well written point.)
+
+## Weaknesses and next steps
+
+Weaknesses and next steps should also be included.
+
+Include something about how I should get more information from the other indexes and how I can use the data to get more accurate results. Next steps can include. idk think about this. 
+
+\newpage
+
+\appendix
+
+# Appendix {-}
+
+```{r modeljustification, echo=FALSE, warning=FALSE, include=FALSE}
+
+# this is just me checking whether i can use the models accurately or not. this is not included in the pdf output
+stock_yearly %>% ggplot(aes(x = consumer_price_index)) +
+  geom_histogram()
+
+#this stuff goes in the appendix as part of the assumptions for the model
+stock_yearly %>% ggplot(aes(x = log(long_interest_rate))) +
+  geom_histogram(color = 3, fill = 2, bins = 20)
+
+# we should take the natural log to make the response more normal.
+
+stock_yearly %>% ggplot(aes(x = log(real_price))) +
+  geom_histogram(color = 15, fill = 13, bins = 25)
+
+#does not appear that normal but we can still use it. remember that the coefficient values that we get are percentages in this case.
+
+```
+
+# Additional details
+
+
+\newpage
+
+
+# References
+
+
