@@ -1,9 +1,9 @@
 ---
 title: "Standard and Poors Stock Market value over the years"
-subtitle: ""
+subtitle: "How do Recessions affect the value of the Index"
 author: 
   - "Mohammad Sardar Sheikh"
-thanks: "Code and data are available at: LINK."
+thanks: "Code and data are available at: https://github.com/mohammadsardar/S-P500-index"
 date: "`r format(Sys.time(), '%d %B %Y')`"
 abstract: "The purpose of this paper is to check the long term trends in the S$P500 stock index value. I want to see the whether the numerous recessions and economic booms have had a significant difference on the value of the dividends and related factors. Methods that will be used to fit models will be justified and all assumptions will be checked for them. I have no furhter information to put in the abstract."
 output:
@@ -260,18 +260,6 @@ summary(interestmodel3)
 
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
 ```{r, include=FALSE}
 
 
@@ -297,19 +285,13 @@ vif(pricemodelnoyear)
 
 ```
 
-
-
-
-
-
-
 # Results
 
-I want to isolate the periods in the history of the United States when there were major recessions and then analyze how the price of the stock varied in those times. As explained, a recession is a period when the overall GDP growth rate of the economy falls as compared to the long run average growth (can go negative). In all of the recessions that I analyze, the GDP decreased by a huge margin and I want to analyze if this had any significant effects on the price of the S&P500 index value. I also want to predict both the value of the long term interest rate based on the components of the S$P500, and i want to be able to predict the value of the index in the future. To do this, I have created two models which will be interpreted.
+I want to isolate the periods in the history of the United States when there were major recessions and then analyze how the price of the stock varied in those times. As explained, a recession is a period when the overall GDP growth rate of the economy falls as compared to the long run average growth (can go negative). In all of the recessions that I analyze, the GDP decreased by a huge margin and I want to analyze if this had any significant effects on the price of the S&P500 index value or on the value of the earnings for the index. I also want to predict both the value of the long term interest rate based on the components of the S$P500, and i want to be able to predict the value of the index in the future. To do this, I have created two models which will be interpreted.
 
 ## Great Depression
 
-```{r great depression, echo = FALSE, fig.width=6, fig.height= 3}
+```{r greatdepression, echo = FALSE, fig.width=6, fig.height= 3, fig.cap= "Monthly value of the S&P500 during the Great Depression"}
 
 # the timeline for the great recession is 1929-1933 & 1937-1938  gdp contraction:26.7% and 18.32%
 # going to take a 5 year buffer above and below.
@@ -323,7 +305,7 @@ stock_yearly %>% filter(year > 1926 & year < 1941) %>%
   ggplot(aes(x = date, y = real_price)) +
   geom_line(color="#69b3a2", linetype = 2) + 
   theme_minimal() + 
-  labs(title = "Monthly value of the S&P500 during the Great Depression") +
+  #labs(title = "Monthly value of the S&P500 during the Great Depression") +
   xlab("Year") +
   ylab("Value of Index") +
   # geom_hline(yintercept = 210.07, linetype = 16) +
@@ -348,21 +330,21 @@ stock_yearly %>% filter(year > 1926 & year < 1941) %>%
 
 
 ```
+The Great Depression was the worst economic downturn in the history of the industrialized world, lasting from 1929 to 1939. It began after the stock market crash of October 1929, which sent Wall Street into a panic and wiped out millions of investors.(CITE). the great depression was caused by a massive influx of wealth into the stock market, which over inflated it. The price of the stocks reached record high levels and investors started doubting the authenticity of the price. Massive waves of selling took place where millions of shares were traded and the value of the stock market plummeted and with it, millions of investors wealth. The country was already experiencing a decrease in both agricultural and industrial production and millions of jobs were lost, with over 20% of Americans being left unemployed. wages dropped and bank runs started to take place. Newly elected president FDR worked hard to reverse the recession effects.
 
-So we can see from the plot above that when the great depression hit (the largest recession in american history, where GDP fell by 27%), the value of the S&P500 fell by a great deal (add proper values here?). this can be seen from the vertical red lines in the figure. that was the first wave of the recession. the second wave of the recession hit in 1937 and only lasted one year, but we can see that it already started to take effect on the value of the index (this is represented by the blue lines). HAVE TO ADD SOME NUMBERS ON HERE AS WELL.
+When the great depression hit (the largest recession in american history, where GDP fell by 27%), the value of the S&P500 fell by a great deal. We can see from Figure \@ref(fig:greatdepression) the relative value of the real price of the index. The great depression hit the economy in two stages. The first was during 1929-1933 and we can see the huge plunge that the value of the stock took, where the price of the stock dropped from a local high of \$450 to around \$100. This is a huge decrease of around `r (350/100)`%. This can be seen from the vertical red lines in the figure. This was only just the first wave of the recession. We can see that in the few years after the end of the first wave, the value of the index start to slowly rise and recover, but then the second wave of the recession hit. This is represented by teh blue lines. while the recession only lasted for one year, the value of the index yet again took a steep dive, learning its lesson and staying down. 
 
+## World War 2 recession
 
-## Recession at the end of world war 2
+But with the surrender of both Germany and Japan in 1945, military contracts were slashed and soldiers started coming home, competing with civilians for jobs. As government spending dried up, the economy dipped into a serious recession with GDP contracting by a whopping 11 percent. this was actually a fiscal cliff.
 
-But with the surrender of both Germany and Japan in 1945, military contracts were slashed and soldiers started coming home, competing with civilians for jobs. As government spending dried up, the economy dipped into a serious recession with GDP contracting by a whopping 11 percent. this was actrually a fiscal cliff
-
-```{r, echo = FALSE, fig.width=6, fig.height= 3}
+```{r ww2recession, echo = FALSE, fig.width=6, fig.height= 3, fig.cap="Value of the S&P500 during the Recession of 1945"}
 
 stock_yearly %>% filter(year > 1943 & year < 1953) %>%
   ggplot(aes(x = date, y = real_price)) +
   geom_line(color="#69b3a2", linetype = 2) + 
   theme_minimal() + 
-  labs(title = "Value of the S&P500 during the Recession of 1945") +
+  #labs(title = "Value of the S&P500 during the Recession of 1945") +
   xlab("Year") +
   ylab("Value of Index") +
   # geom_hline(yintercept = 210.07, linetype = 16) +
@@ -377,17 +359,17 @@ stock_yearly %>% filter(year > 1943 & year < 1953) %>%
 
 ```
 
-From the graph above we can see that the value of the index actually increased during the recession of 1945. This seems surprising as this recession in particular hit the United States very hard and there was a decrease of 12.7% in GDP. yet we can see that the value of the index remained strong. We have a counter argument since the  effects of a regression are visible for a long period even after the recession has subsided. we can see from the figure above that this seems to be the case. since the regression was officially over within 8 months, the index did not have time to adjust to the fluctuations in the market and we can see this as a lagged effect since we observe a huge and long drop in the value of the index which took a few years just to recover and reach its original level. ADD SOME MORE AFTER SOME RESEARCH
+From Figure \@ref(fig:ww2recession) we can see that the value of the index actually increased during the recession of 1945. This seems surprising as this recession in particular hit the United States very hard and there was a decrease of 12.7% in GDP. yet we can see that the value of the index remained strong. We have a counter argument since the  effects of a regression are visible for a long period even after the recession has subsided. we can see from the figure above that this seems to be the case. since the regression was officially over within 8 months, the index did not have time to adjust to the fluctuations in the market and we can see this as a lagged effect since we observe a huge and long drop in the value of the index which took a few years just to recover and reach its original level. The after war policy was expansionary however and we can see from the figure that within the span of 10 years, teh value of the stock was back to its original level. We can also see that the years leading up to the recession were very beneficial for the value of the index. This is because teh government was investing billions into the military and defence industry, and many of these companies were part of the index.
 
 
-## recession on 1957-1958 Eisenhower recession.
+## Recession on 1957-1958 / Eisenhower recession.
 
-```{r, echo=FALSE, fig.width=6, fig.height= 3}
+```{r eisen, echo=FALSE, fig.width=6, fig.height= 3, fig.cap="Monthly value of the S&P500 during the Eisenhower Recession "}
 stock_yearly %>% filter(year > 1953 & year < 1962) %>%
   ggplot(aes(x = date, y = real_price)) +
   geom_line(color="#69b3a2", linetype = 2) + 
   theme_minimal() + 
-  labs(title = "Monthly value of the S&P500 during the Recession of ") +
+  #labs(title = "Monthly value of the S&P500 during the Eisenhower Recession ") +
   xlab("Year") +
   ylab("Value of Index") +
   # geom_hline(yintercept = 210.07, linetype = 16) +
@@ -401,16 +383,14 @@ stock_yearly %>% filter(year > 1953 & year < 1962) %>%
               linetype = 12)
 ```
 
-We can see during this regression as well that the value of the index also fell somewhat. maybe add some numbers here as well? just include this as a figure to take up some space. what else can be added here. we can add some information about the specific regression and what caused it and how it affected the index (research wise).
+The recession of 1957-1958 is also known as the Eisenhower recession. It was for a short time period, but corporate profits fell by a great deal. Using Figure \@ref(fig:eisen), we can see during this regression as well that the value of the index also fell somewhat. This fall is not as significant as the other recessions. This recession was significant in the post world war 2 period and unemployment rose greatly while corporate profits fell by as much as 25%. A weak fiscal and monetary policy contributed to this and there was significant stagflation as well as just a reduction in output. Stagflation occurs when the economy deteriorates and there is high inflation at the same time. this leads to a very bad situation for the country and it is what was seen in this particular recession.
 
-This recession was significant in the post world war 2 period and unemployment rose greatly while corporate profits fell by as much as 25%. A weak fiscal policy contributed to this and there was significant stagflation as well as just a reduction in output. Stagflation occurs when the economy deteriorates and there is high inflation at the same time. this leads to a very bad situation for the country and it is what was seen in this particular recession.
-
-```{r recessionearnings, echo=FALSE, fig.width=6, fig.height= 3}
+```{r eisenearn, echo=FALSE, fig.width=6, fig.height= 3, fig.cap="S&P500 earnings during the Eisenhower Recession"}
 stock_yearly %>% filter(year > 1953 & year < 1962) %>%
   ggplot(aes(x = date, y = real_earnings)) +
   geom_line(color="#69b3a2", linetype = 2) + 
   theme_minimal() + 
-  labs(title = "Monthly value of the S&P500 during the Recession of Eisenhower") +
+  labs(title = "S&P500 earnings during the Recession of Eisenhower") +
   xlab("Year") +
   ylab("Value of Index") +
   # geom_hline(yintercept = 210.07, linetype = 16) +
@@ -424,9 +404,11 @@ stock_yearly %>% filter(year > 1953 & year < 1962) %>%
               linetype = 12)
 ```
 
+Looking at Figure \@ref(fig:eisenearn) we can see that the earnings/profit of the index fell greatly during the recession. This seems in line with what the research says as profits were more affected that GDP.
+
 ## the great recession:
 
-```{r, echo=FALSE, fig.width=6, fig.height= 3}
+```{r great, echo=FALSE, fig.width=6, fig.height= 3, fig.cap=  "Monthly value of the S&P500 during the Great Recession"}
 stock_yearly %>% filter(year > 2004 & year < 2013) %>%
   ggplot(aes(x = date, y = real_price)) +
   geom_line(color="#69b3a2", linetype = 2) + 
@@ -445,17 +427,18 @@ stock_yearly %>% filter(year > 2004 & year < 2013) %>%
               linetype = 12) 
 ```
 
-AHH the great recession everyone that is reading this paper has experienced this period in our history. Not only was this specific regression in the United States, its effects spread worldwide, effecting so many other countries and continents. We can see just how devastating this regression was for the value of the stocks that were traded in the index as we can see a huge dip in the value of the standard and poors index in just the span of one year. going from a local maximum of 1800 to a local minimum of 900 dollars in real terms.
+The Great Recession was similar to the Great Depression in the sense that the cause of the recession was similar. There was a rapid increase in the valuation of stocks and companies while profits did not increase linearly and these stocks were predicted to be in a bubble. Housing was a huge contributor to the Great Recession. With the mass of wealth creation, many people wanted to own homes. Banks were giving out sub-prime mortagages to increasingly risky individuals, claiming that the increase in the value of the property would make up for it. It did not. Unemployment grew rampant and the economy plunged. 
+ Not only was this specific recession in the United States, its effects spread worldwide, effecting so many other countries and continents. We can see just how devastating this regression was in Figure \@ref(fig:great), for the value of the stocks that were traded in the index as we can see a huge dip in the value of the standard and poors index in just the span of one year. Going from a local maximum of 1800 to a local minimum of 900 dollars in real terms.
 
-THEse are all the recessions that i have to account for.
 
-model section of the results section
+
+## interest rate model interpretation
 
 interest rate model:
 
-```{r, echo=FALSE}
+```{r interestmodtab, echo=FALSE}
 
-regressionvalues <- broom::tidy(interestmodel2)
+regressionvalues <- broom::tidy(interestmodel2log)
 
 regressionvalues <- regressionvalues %>% rename( 'standard error' = 'std.error',
                                           'p-value' = 'p.value')
@@ -466,14 +449,16 @@ knitr::kable(regressionvalues,
 
 ```
 
-talk about the results and what they mean here
+Interpreting the results of the regression in Table \@ref(tab:interestmodtab), we can see that the interest rate depends on a few predictors. When the value of a dividend increases by \$1, the interest rate decreases by 0.8%. Similarly, when the earnings increase by \$1, the interest rate increases by 0.12%. For the Consumer Price Index, we observe a similar relationship. when the CPI increases by 1 (%point in this case), the interest rate increases by 0.2%. finally, when looking at the pe10 ratio (CAPE ratio), when the value of the ratio increases by 1, the interest rate decreases by 1.5%.
 
 
-price of stock model:
+## price index model interpretation
+
+price of stock model results:
 
 ```{r regressionresultspriceofstock, echo=FALSE}
 
-pricecoefs <- broom::tidy(pricemodelnoyear)
+pricecoefs <- broom::tidy(pricemodelnoyearlog)
 
 pricecoefs <- pricecoefs %>% rename( 'standard error' = 'std.error',
                                           'p-value' = 'p.value')
@@ -483,6 +468,9 @@ knitr::kable(pricecoefs,
   kableExtra::kable_styling(latex_options = "striped")
 
 ```
+
+Interpreting the results of the regression in Table \@ref(tab:regressionresultspriceofstock), we can see that the interest rate depends on a few predictors. When the value of a dividend increases by \$1, the price of the index increases by 5.4%. Similarly, when the earnings increase by \$1, the value of the index increases by 0.5%. For the Consumer Price Index, we observe a similar relationship. when the CPI increases by 1 (%point in this case), the price of the index increases by 0.3%. Finally, when looking at the long term interest rate, when the interest rate increases by 1, the value of the index increases by 1.5%.
+
 
 
 
