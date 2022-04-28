@@ -34,13 +34,13 @@ loadfonts(device = "win")
 
 
 
-The Standard and Poor's index, or more commonly referred to as the S&P 500 is a mutual fund or ETF that tracks the Standard and Poor's index of hte 500 largest US companies. The index is widely referred to as a very safe place for investment as the returns are almost unbeatable, even by professional investors. The mutual fund has a great number of investors and it can be useful as a measure of the overall economy, where the health of the index can be used to find the health of the economy. Predictions made based on the index can be extrapolated and applied to many other company stocks and the index is sometimes used as a bench mark. [@citethune_2021]. 
+The Standard and Poor's index, or more commonly referred to as the S&P 500 is a mutual fund or ETF that tracks the Standard and Poor's index of hte 500 largest US companies. The index is widely referred to as a very safe place for investment as the returns are almost unbeatable, even by professional investors. The mutual fund has a great number of investors and it can be useful as a measure of the overall economy, where the health of the index can be used to find the health of the economy. Predictions made based on the index can be extrapolated and applied to many other company stocks and the index is sometimes used as a bench mark. [@thune_2021]. 
 
 This is why the topic of my research today is the performance of the index over the long run. I use the data that I have to find out the performance of the stock at different times in history, especially during major periods of recession. Throughout the paper, I choose to use real values instead of nominal ones. The price of the index has increased greatly ever since it was founded in 1923, when it was just comprised of 90 of the largest companies in the United States. By 1957, the index had expanded to include 500 of the largest companies and it truly took off. The price seems to have increased exponentially around the 1990's as compared to the long run average growth trend. We can see from the results that whenever there is a recession, the value of the stock takes a big dip. Not only does the price of the stock decrease, the earnings and dividends also decrease. The severity of the decrease in index valuation also depends on the severity of the recession. Recessions such as the Great Depression in 1929-1938, and the great recession in 2007-2008 led to a very large decrease in the value fo the index.
 
   Since the index is so important in investors and portfolio owner's eyes, I also predicted the real value of the stock in the future based on the components of the index such as dividends and earnings. I also added predictors that include the Consumer price index (measure of inflation) and the long term interest rate. When the value of a dividend increases by \$1, the price of the index increases by 5.4%. Similarly, when the earnings increase by \$1, the value of the index increases by 0.5%. When the CPI increases by 1 (%point in this case), the price of the index increases by 0.3%. When the interest rate increases by 1, the value of the index increases by 1.5%.
   
-  Another very important thing that I want to predict is the value of the real interest rate in the economy. The real interest rate is a very essential tool for investors when making decisions. A high interest rate decreases investment in the economy by making investing and borrowing riskier. A high interest rate also makes saving more appealing as an individual gets a higher rate of return on an savings. Conversely, a low interest rate makes investment very appealing, decreasing the risk associated with doing so and decreasing the realized benefits of savings. [@citepettinger] This makes predicting future interest rate more important. Based on the results of the model, when the value of a dividend increases by \$1, the interest rate decreases by 0.8%. Similarly, when the earnings increase by \$1, the interest rate increases by 0.12%. When the CPI increases by 1 (%point in this case), the interest rate increases by 0.2%. When the value of the CAPE ratio increases by 1, the interest rate decreases by 1.5%.
+  Another very important thing that I want to predict is the value of the real interest rate in the economy. The real interest rate is a very essential tool for investors when making decisions. A high interest rate decreases investment in the economy by making investing and borrowing riskier. A high interest rate also makes saving more appealing as an individual gets a higher rate of return on an savings. Conversely, a low interest rate makes investment very appealing, decreasing the risk associated with doing so and decreasing the realized benefits of savings. [@pettinger] This makes predicting future interest rate more important. Based on the results of the model, when the value of a dividend increases by \$1, the interest rate decreases by 0.8%. Similarly, when the earnings increase by \$1, the interest rate increases by 0.12%. When the CPI increases by 1 (%point in this case), the interest rate increases by 0.2%. When the value of the CAPE ratio increases by 1, the interest rate decreases by 1.5%.
 
 This paper and research was done using `R` [@citeR]. I used many other packages to help me in the creation of this paper. They include: TidyVerse [@citetidy], kableExtra [@citekable] for the informative tables, Patchwork [@citepatch] for the graph layouts, readr [@citereadr] to help load and write data, lubridate [@citelubridate] to help manage important dates, car [@citecar] to help with model assumptions and verification and lme4 [@citelme4] to help build mixed models.
 
@@ -320,13 +320,13 @@ stock_yearly %>% filter(year > 1926 & year < 1941) %>%
 
 ```
 
-The Great Depression was the worst economic downturn in the history of the industrialized world, lasting from 1929 to 1939. It began after the stock market crash of October 1929, which sent Wall Street into a panic and wiped out millions of investors.[@citedepression_2009]. the great depression was caused by a massive influx of wealth into the stock market, which over inflated it. The price of the stocks reached record high levels and investors started doubting the authenticity of the price. Massive waves of selling took place where millions of shares were traded and the value of the stock market plummeted and with it, millions of investors wealth. The country was already experiencing a decrease in both agricultural and industrial production and millions of jobs were lost, with over 20% of Americans being left unemployed. wages dropped and bank runs started to take place. Newly elected president FDR worked hard to reverse the recession effects.
+The Great Depression was the worst economic downturn in the history of the industrialized world, lasting from 1929 to 1939. It began after the stock market crash of October 1929, which sent Wall Street into a panic and wiped out millions of investors.[@depression_2009]. the great depression was caused by a massive influx of wealth into the stock market, which over inflated it. The price of the stocks reached record high levels and investors started doubting the authenticity of the price. Massive waves of selling took place where millions of shares were traded and the value of the stock market plummeted and with it, millions of investors wealth. The country was already experiencing a decrease in both agricultural and industrial production and millions of jobs were lost, with over 20% of Americans being left unemployed. wages dropped and bank runs started to take place. Newly elected president FDR worked hard to reverse the recession effects.
 
 When the great depression hit (the largest recession in american history, where GDP fell by 27%), the value of the S&P500 fell by a great deal. We can see from Figure \@ref(fig:greatdepression) the relative value of the real price of the index. The great depression hit the economy in two stages. The first was during 1929-1933 and we can see the huge plunge that the value of the stock took, where the price of the stock dropped from a local high of \$450 to around \$100. This is a huge decrease of around 350%. This can be seen from the vertical red lines in the figure. This was only just the first wave of the recession. We can see that in the few years after the end of the first wave, the value of the index start to slowly rise and recover, but then the second wave of the recession hit. This is represented by the blue lines. while the recession only lasted for one year, the value of the index yet again took a steep dive, learning its lesson and staying down. 
 
 ## World War 2 recession
 
-But with the surrender of both Germany and Japan in 1945, military contracts were slashed and soldiers started coming home, competing with civilians for jobs. As government spending dried up, the economy dipped into a serious recession with GDP contracting by a whopping 11 percent. this was actually a fiscal cliff. [@citehistory_2019]
+But with the surrender of both Germany and Japan in 1945, military contracts were slashed and soldiers started coming home, competing with civilians for jobs. As government spending dried up, the economy dipped into a serious recession with GDP contracting by a whopping 11 percent. this was actually a fiscal cliff. [@history_2019]
 
 ```{r ww2recession, echo = FALSE, fig.width=6, fig.height= 3, fig.cap="Value of the S&P500 during the Recession of 1945"}
 
@@ -394,7 +394,7 @@ stock_yearly %>% filter(year > 1953 & year < 1962) %>%
               linetype = 12)
 ```
 
-Looking at Figure \@ref(fig:eisenearn) we can see that the earnings/profit of the index fell greatly during the recession. This seems in line with what the research says as profits were more affected that GDP. [@citepike]
+Looking at Figure \@ref(fig:eisenearn) we can see that the earnings/profit of the index fell greatly during the recession. This seems in line with what the research says as profits were more affected that GDP. [@pike]
 
 ## The Great Recession:
 
@@ -478,7 +478,7 @@ Interpreting the results of the regression in Table \@ref(tab:regressionresultsp
   
 
 
-## The relationship between price of the stock and how it appears to be important (can include how the other stocks and the strength of the economy can be indicated by the performance of the S$P500 index and so this can be expanded into a well written point.)
+## The relationship between price of the stock and its importance
 
   The value of the index is another important metric that I want to predict. Since the index is comprised of 500 of the largest companies, it represents a huge market share and it serves as a benchmark for portfolios and investors with private investment. The strength of the index can be used to gauge the strength of the economy as a whole and any trends in the economy. Since many people have invested in the index, it is also informative and beneficial for them to figure out the factors that effect the value of the stock. From the results of the regression, we can see that an increase in the value of the index dividend increases the value of the index. An increase in index earnings also increase the value of the index. An increase in the Consumer price index and the long term interest rate also increase the value fo the index. These results are easy to predict. the value of the index, and its constituents have been increasing since the index was established, so it is easy to predict that an increase in the value of any one of its constituents would increase the value of the index.
   
@@ -497,11 +497,11 @@ Interpreting the results of the regression in Table \@ref(tab:regressionresultsp
 
 This is just some of the work to justify the model and check for some of the model assumptions
 
-```{r modeljustification, echo=FALSE, warning=FALSE}
+```{r modeljustification, echo=FALSE, warning=FALSE, message=FALSE}
 
 # this is just me checking whether i can use the models accurately or not. this is not included in the pdf output
 stock_yearly %>% ggplot(aes(x = consumer_price_index)) +
-  geom_histogram()
+  geom_histogram(bins = 20)
 
 #this stuff goes in the appendix as part of the assumptions for the model
 stock_yearly %>% ggplot(aes(x = log(long_interest_rate))) +
