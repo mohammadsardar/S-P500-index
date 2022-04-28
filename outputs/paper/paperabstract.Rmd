@@ -1,5 +1,5 @@
 ---
-title: "Standard and Poors Stock Market value over the years"
+title: "Standard and Poor's Index value over the years"
 subtitle: "How do Recessions affect the value of the Index"
 author: 
   - "Mohammad Sardar Sheikh"
@@ -32,29 +32,19 @@ loadfonts(device = "win")
 
 # Introduction
 
-This is still a basic introduction of the paper that I am planning to do. I want to predict long term trends of the S&P 500 and the short term trends. there have been various recessions and booms since it was founded and I want to see what the average rates of return were during these times and whether the stock owners got a different share of dividends during these times. The data that I have is monthly recordings of varialbes such as the value of the index to the earnings and dividends for the index and long term interest rates. We also have Consumer Price index data that has been used to normalise the values of the variables and get real values in return. I plan to make a number of visualisations that can be used to see the long term trends in the value, and also some visualizations that can be used to focus on smaller time periods, such as recession and or booms. I also plan to include an interactive graph (shiny maybe). After doing some literature review, I plan on fitting a model that can help predict the value of the index and i will choose relevant predictors to include in the model. I will make sure that the predictors have linear or no relationships with each other and that they do not increase the VIF of the model.
 
-I am also interested in how a recession changes the value of the stock and what exactly happens to all the dividends and earnings and the CPI.; so what i will do is make line graphs where i will zoom in.
 
-This paper and researh was done using `R` [@citeR]. I used many other packages to help me in the creation of this paper. They include: TidyVerse [@citetidy], kableExtra [@citekable] for the informative tables, Patchwork [@citepatch] for the graph layouts, readr [@citereadr] to help load and write data, lubridate [@citelubridate] to help manage important dates, car [@citecar] to help with model assumptions and verification and lme4 [@citelme4] to help build mixed models.
+The Standard and Poor's index, or more commonly referred to as the S&P 500 is a mutual fund or ETF that tracks the Standard and Poor's index of hte 500 largest US companies. The index is widely referred to as a very safe place for investment as the returns are almost unbeatable, even by professional investors. The mutual fund has a great number of investors and it can be useful as a measure of the overall economy, where the health of the index can be used to find the health of the economy. Predictions made based on the index can be extrapolated and applied to many other company stocks and the index is sometimes used as a bench mark. CITE article. 
 
-# key words (i dont know if i need this section)
+This is why the topic of my research today is the performance of the index over the long run. I use the data that I have to find out the performance of the stock at different times in history, especially during major periods of recession. Throughout the paper, I choose to use real values instead of nominal ones. The price of the index has increased greatly ever since it was founded in 1923, when it was just comprised of 90 of the largest companies in the United States. By 1957, the index had expanded to include 500 of the largest companies and it truly took off. The price seems to have increased exponentially around the 1990's as compared to the long run average growth trend. We can see from the results that whenever there is a recession, the value of the stock takes a big dip. Not only does the price of the stock decrease, the earnings and dividends also decrease. The severity of the decrease in index valuation also depends on the severity of the recession. Recessions such as the Great Depression in 1929-1938, and the great recession in 2007-2008 led to a very large decrease in the value fo the index.
 
-S$P500. Stock Value. Model. Dividends. Price. Year. CPI. Economic timeline.
+  Since the index is so important in investors and portfolio owner's eyes, I also predicted the real value of the stock in the future based on the components of the index such as dividends and earnings. I also added predictors that include the Consumer price index (measure of inflation) and the long term interest rate. When the value of a dividend increases by \$1, the price of the index increases by 5.4%. Similarly, when the earnings increase by \$1, the value of the index increases by 0.5%. When the CPI increases by 1 (%point in this case), the price of the index increases by 0.3%. When the interest rate increases by 1, the value of the index increases by 1.5%.
+  
+  Another very important thing that I want to predict is the value of the real interest rate in the economy. The real interest rate is a very essential tool for investors when making decisions. A high interest rate decreases investment in the economy by making investing and borrowing riskier. A high interest rate also makes saving more appealing as an individual gets a higher rate of return on an savings. Conversely, a low interest rate makes investment very appealing, decreasing the risk associated with doing so and decreasing the realized benefits of savings. This makes predicting future interest rate more important. Based on the results of the model, when the value of a dividend increases by \$1, the interest rate decreases by 0.8%. Similarly, when the earnings increase by \$1, the interest rate increases by 0.12%. When the CPI increases by 1 (%point in this case), the interest rate increases by 0.2%. When the value of the CAPE ratio increases by 1, the interest rate decreases by 1.5%.
 
-#key steps
-1. analyze the actual data:
-what is it trying to tell me
-is there anything that i need to know to do my research
+This paper and research was done using `R` [@citeR]. I used many other packages to help me in the creation of this paper. They include: TidyVerse [@citetidy], kableExtra [@citekable] for the informative tables, Patchwork [@citepatch] for the graph layouts, readr [@citereadr] to help load and write data, lubridate [@citelubridate] to help manage important dates, car [@citecar] to help with model assumptions and verification and lme4 [@citelme4] to help build mixed models.
 
-2. do some Heracles on the subject
-when were the recessions that i am gonna talk about
-when were the booms
-how am i gonna manipulate the data to show what i want in to show?
-damn this sounds pretty amazing doesn't it?
-lets get started now.
 
-3. Have to gather data on the S&P 500. what is it, what does it actually represent, what stocks are part of it
 
 # Data
 
@@ -362,7 +352,7 @@ stock_yearly %>% filter(year > 1943 & year < 1953) %>%
 From Figure \@ref(fig:ww2recession) we can see that the value of the index actually increased during the recession of 1945. This seems surprising as this recession in particular hit the United States very hard and there was a decrease of 12.7% in GDP. yet we can see that the value of the index remained strong. We have a counter argument since the  effects of a regression are visible for a long period even after the recession has subsided. we can see from the figure above that this seems to be the case. since the regression was officially over within 8 months, the index did not have time to adjust to the fluctuations in the market and we can see this as a lagged effect since we observe a huge and long drop in the value of the index which took a few years just to recover and reach its original level. The after war policy was expansionary however and we can see from the figure that within the span of 10 years, teh value of the stock was back to its original level. We can also see that the years leading up to the recession were very beneficial for the value of the index. This is because teh government was investing billions into the military and defence industry, and many of these companies were part of the index.
 
 
-## Recession on 1957-1958 / Eisenhower recession.
+## Recession of 1957-1958 / Eisenhower recession.
 
 ```{r eisen, echo=FALSE, fig.width=6, fig.height= 3, fig.cap="Monthly value of the S&P500 during the Eisenhower Recession "}
 stock_yearly %>% filter(year > 1953 & year < 1962) %>%
@@ -406,7 +396,7 @@ stock_yearly %>% filter(year > 1953 & year < 1962) %>%
 
 Looking at Figure \@ref(fig:eisenearn) we can see that the earnings/profit of the index fell greatly during the recession. This seems in line with what the research says as profits were more affected that GDP.
 
-## the great recession:
+## The Great Recession:
 
 ```{r great, echo=FALSE, fig.width=6, fig.height= 3, fig.cap=  "Monthly value of the S&P500 during the Great Recession"}
 stock_yearly %>% filter(year > 2004 & year < 2013) %>%
@@ -432,9 +422,7 @@ The Great Recession was similar to the Great Depression in the sense that the ca
 
 
 
-## interest rate model interpretation
-
-interest rate model:
+## Long Term Interest Rate model
 
 ```{r interestmodtab, echo=FALSE}
 
@@ -452,9 +440,7 @@ knitr::kable(regressionvalues,
 Interpreting the results of the regression in Table \@ref(tab:interestmodtab), we can see that the interest rate depends on a few predictors. When the value of a dividend increases by \$1, the interest rate decreases by 0.8%. Similarly, when the earnings increase by \$1, the interest rate increases by 0.12%. For the Consumer Price Index, we observe a similar relationship. when the CPI increases by 1 (%point in this case), the interest rate increases by 0.2%. finally, when looking at the pe10 ratio (CAPE ratio), when the value of the ratio increases by 1, the interest rate decreases by 1.5%.
 
 
-## price index model interpretation
-
-price of stock model results:
+## S$P500 index value model
 
 ```{r regressionresultspriceofstock, echo=FALSE}
 
@@ -496,7 +482,9 @@ Include something about how I should get more information from the other indexes
 
 # Appendix {-}
 
-```{r modeljustification, echo=FALSE, warning=FALSE, include=FALSE}
+This is just some of the work to justify the model and check for some of the model assumptions
+
+```{r modeljustification, echo=FALSE, warning=FALSE}
 
 # this is just me checking whether i can use the models accurately or not. this is not included in the pdf output
 stock_yearly %>% ggplot(aes(x = consumer_price_index)) +
